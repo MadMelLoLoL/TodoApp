@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly View</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/month.css">
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <div class="month-layout">
+        <header class="month-header">
+            <h1 id="monthTitle">Month</h1>
+            <div class="month-controls" aria-label="Change month">
+                <button type="button" id="previousMonth" aria-label="Previous month">‹</button>
+                <button type="button" id="nextMonth" aria-label="Next month">›</button>
+            </div>
+            <a href="toDOdailydays.html">Back to Tasks</a>
+        </header>
+
+        <div class="calendar">
+            <div class="weekday-row" id="weekdayRow"></div>
+            <div class="day-grid" id="monthGrid"></div>
+            <p class="empty-month" id="emptyMonth" hidden>No tasks scheduled this month.</p>
+        </div>
+    </div>
+
+    <script>
+        const monthGrid = document.getElementById('monthGrid');
+        const weekdayRow = document.getElementById('weekdayRow');
+        const monthTitle = document.getElementById('monthTitle');
+        const emptyMonth = document.getElementById('emptyMonth');
+        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const today = new Date();
+        let visibleMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        weekdays.forEach(day => {
+            const cell = document.createElement('div');
+            cell.className = 'weekday';
+            cell.textContent = day;
+            weekdayRow.appendChild(cell);
+        });
+
+        function getTasks() {
+            let storedTasks;
+
+            try {
+                storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            } catch (error) {
+                console.error('Could not read saved tasks for the calendar.', error);
+                throw error;
+            }
+
+            if (!Array.isArray(storedTasks)) {
+                throw new TypeError('Saved tasks must be an array.');
+            }
+
+            if (moveOverdueTasksToToday(storedTasks)) {
+                localStorage.setItem('tasks', JSON.stringify(storedTasks));
+            }
+
+            return storedTasks;
+        }
+
+        function renderMonth() {
+            const year = visibleMonth.getFullYear();
+            const month = visibleMonth.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const monthTasks = getTasks().filter(task => {
+                if (!task.date) return false;
+                const [taskYear, taskMonth] = task.date.split('-').map(Number);
+                return taskYear === year && taskMonth === month + 1;
+            });
+
+            monthTitle.textContent = visibleMonth.toLocaleDateString(undefined, {
+                month: 'long',
+                year: 'numeric'
+            });
+            monthGrid.replaceChildren();
+            emptyMonth.hidden = monthTasks.length > 0;
+
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const filler = document.createElement('div');
+                filler.className = 'day-cell';
+                filler.setAttribute('aria-hidden', 'true');
+                filler.style.visibility = 'hidden';
+                monthGrid.appendChild(filler);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell';
+                if (
+                    year === today.getFullYear() &&
+                    month === today.getMonth() &&
+                    day === today.getDate()
+                ) {
+                    dayCell.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayCell.appendChild(dayNumber);
+
+                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                monthTasks
+                    .filter(task => task.date === dateKey)
+                    .forEach(task => {
+                        const taskLabel = document.createElement('span');
+                        taskLabel.className = 'day-pill';
+                        if (task.overdue && !task.completed) {
+                            taskLabel.classList.add('overdue');
+                        }
+                        taskLabel.textContent = `${task.completed ? '✓ ' : ''}${task.name}`;
+                        taskLabel.title = task.name;
+                        dayCell.appendChild(taskLabel);
+                    });
+
+                monthGrid.appendChild(dayCell);
+            }
+        }
+
+        document.getElementById('previousMonth').addEventListener('click', () => {
+            visibleMonth = new Date(
+                visibleMonth.getFullYear(),
+                visibleMonth.getMonth() - 1,
+                1
+            );
+            renderMonth();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            visibleMonth = new Date(
+                visibleMonth.getFullYear(),
+                visibleMonth.getMonth() + 1,
+                1
+            );
+            renderMonth();
+        });
+
+        window.addEventListener('storage', renderMonth);
+        renderMonth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+body {
+    margin: 0;
+    background: #eef8fa;
+    font-family: Arial, sans-serif;
+}
+
+.month-layout {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 24px;
+}
+
+.month-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.month-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.month-controls button {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 12px;
+    background: #b4e1eb;
+    color: #334e5c;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.month-header h1 {
+    margin: 0;
+    font-size: 36px;
+    color: #334e5c;
+}
+
+.month-header a {
+    text-decoration: none;
+    color: #334e5c;
+    background: #f9e8a2;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.calendar {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 5px 20px rgba(120, 164, 203, 0.12);
+    padding: 20px;
+}
+
+.weekday-row,
+.day-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.weekday-row {
+    margin-bottom: 12px;
+    color: #66808d;
+    font-weight: 700;
+    text-align: center;
+}
+
+.weekday {
+    padding: 12px 8px;
+}
+
+.day-cell {
+    min-height: 110px;
+    border-radius: 12px;
+    background: #f7fbfc;
+    padding: 10px;
+    border: 1px solid #dfeef2;
+    overflow-wrap: anywhere;
+}
+
+.day-cell.today {
+    background: #b4e1eb;
+    border-color: #78a4cb;
+}
+
+.day-number {
+    font-weight: 700;
+    color: #334e5c;
+    margin-bottom: 8px;
+}
+
+.day-pill {
+    display: block;
+    background: #f9e8a2;
+    color: #334e5c;
+    font-size: 12px;
+    border-radius: 8px;
+    padding: 5px 7px;
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.day-pill.overdue {
+    background: #fce5e5;
+    color: #a63f3f;
+    border: 1px solid #d97979;
+}
+
+.empty-month {
+    padding: 30px;
+    color: #66808d;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .month-layout {
+        margin: 12px auto;
+        padding: 12px;
+    }
+
+    .calendar {
+        padding: 10px;
+    }
+
+    .weekday-row,
+    .day-grid {
+        gap: 4px;
+    }
+
+    .day-cell {
+        min-height: 80px;
+        padding: 5px;
+        font-size: 12px;
+    }
+
+    .weekday {
+        padding: 8px 2px;
+        font-size: 12px;
+    }
+
+    .month-header h1 {
+        font-size: 24px;
+    }
+}
